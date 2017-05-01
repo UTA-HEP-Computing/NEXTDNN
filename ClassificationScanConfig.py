@@ -5,24 +5,13 @@ import sys,argparse
 from numpy import arange
 import os
 
-# Input for Premixed Generator
-# Find first existing instance
-PossibleInputFile= ["/data/afarbin/LCD/LCD-Merged-All.h5",
-                    "/Users/afarbin/LCD/Data/LCD-Merged-All.h5"]
-try:
-    InputFile=filter( os.path.isfile, PossibleInputFile )[0]
-except:
-    print "Warning: no inputfile found in",PossibleInputFile
-
-# Input for Mixing Generator
-FileSearch="/data/afarbin/LCD/*/*.h5"
-#FileSearch="/Users/afarbin/LCD/Data/*/*.h5"
+InputDirectory="/data/NEXT/tracks/"
 
 # Generation Model
 Config={
     "MaxEvents":int(3.e6),
     "NTestSamples":100000,
-    "NClasses":4,
+    "NClasses":2,
 
     "Epochs":1000,
     "BatchSize":1024,
@@ -36,21 +25,9 @@ Config={
     # How weights are initialized
     "WeightInitialization":"'normal'",
 
-    # Normalization determined by hand.
-    "ECAL":True,
-    "ECALNorm":"'NonLinear'",
-
-    # Normalization needs to be determined by hand. 
-    "HCAL":True,
-    "HCALNorm":"'NonLinear'",
-
-    # Set the ECAL/HCAL Width/Depth for the Dense model.
-    # Note that ECAL/HCAL Width/Depth are changed to "Width" and "Depth",
     # if these parameters are set. 
-    "HCALWidth":32,
-    "HCALDepth":2,
-    "ECALWidth":32,
-    "ECALDepth":2,
+    "Width":32,
+    "Depth":2,
 
     # No specific reason to pick these. Needs study.
     # Note that the optimizer name should be the class name (https://keras.io/optimizers/)
@@ -86,11 +63,8 @@ Config={
 }
 
 # Parameters to scan and their scan points.
-Params={    "optimizer":["'RMSprop'","'Adam'","'SGD'"],
-            "Width":[32,64,128,256,512],
+Params={    "Width":[32,64,128,256,512],
             "Depth":range(1,5),
-            "lr":[0.01,0.001],
-            "decay":[0.01,0.001],
           }
 
 # Get all possible configurations.
@@ -106,18 +80,9 @@ if "HyperParamSet" in dir():
 
 for k in Combos[i]: Config[k]=Combos[i][k]
 
-# Use the same Width and/or Depth for ECAL/HCAL if these parameters 
-# "Width" and/or "Depth" are set.
-if "Width" in Config:
-    Config["ECALWidth"]=Config["Width"]
-    Config["HCALWidth"]=Config["Width"]
-if "Depth" in Config:
-    Config["ECALDepth"]=Config["Depth"]
-    Config["HCALDepth"]=Config["Depth"]
-
 # Build a name for the this configuration using the parameters we are
 # scanning.
-Name="CaloDNN"
+Name="NEXTDNN"
 for MetaData in Params.keys():
     val=str(Config[MetaData]).replace('"',"")
     Name+="_"+val.replace("'","")
