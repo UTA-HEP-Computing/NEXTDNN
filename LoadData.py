@@ -20,22 +20,26 @@ def NEXTDataGeneratorOld(Directory="/data/NEXT", batchsize=16, datasets=[u'3DIma
     return GC
 
 
-def NEXTDataGenerator(Directory="/data/NEXT", batchsize=16, datasets=['Hits/C','Hits/V'],
+def NEXTDataGenerator(Directory="/data/NEXT", batchsize=16, datasets=['Hits/C','Hits/V'], Norm=True,
                       bins=(200,200,200),**kwargs):
 
     Samples = [ (Directory+"/dnn_NEXT100_0vbb_si_v2x2x2_r200x200x200.Tensor.h5", datasets, "signal"    ),
                 (Directory+"/dnn_NEXT100_Bi214_bg_v10x10x5_r200x200x200.Tensor.h5", datasets, "background"    )]
 
-    def MakeImage(bins):
+    def MakeImage(bins,Norm=True):
         def f(D):
             for i in xrange(D[0].shape[0]):
-                R,b=np.histogramdd(D[0][i], bins=list(bins), weights=D[1][i])
+                if Norm:
+                    w=np.tanh(np.sign(D[1][i]) * np.log(np.abs(D[1][i]) + 1.0) / 2.0)
+                else:
+                    w=D[1][i]
+                R,b=np.histogramdd(D[0][i], bins=list(bins), weights=w)
             return [R]+D[2:]
         return f
 
     
     GC= DLMultiClassGenerator(Samples, batchsize=batchsize,
-                              preprocessfunction=MakeImage(bins),
+                              preprocessfunction=MakeImage(bins,Norm),
                               OneHot=True,
                               shapes = [(batchsize,)+bins,(batchsize, 2)],
                               **kwargs)
