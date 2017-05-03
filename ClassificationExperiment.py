@@ -26,7 +26,7 @@ if LowMemMode:
     
 # Calculate how many events will be used for training/validation.
 NSamples=MaxEvents-NTestSamples
-    
+
 # Function to help manage optional configurations. Checks and returns
 # if an object is in current scope. Return default value if not.
 def TestDefaultParam(Config):
@@ -42,8 +42,8 @@ TestDefaultParam=TestDefaultParam(dir())
 # Load the Data
 from NEXTDNN.LoadData import * 
 
-Train_genC=NEXTDataGenerator(InputDirectory,n_threads=n_threads,max=NSamples, verbose=False)
-Test_genC=NEXTDataGenerator(InputDirectory,n_threads=n_threads,skip=NSamples, max=MaxEvents, verbose=False)
+Train_genC=NEXTDataGenerator(InputDirectory,n_threads=n_threads,max=NSamples, bins=bins,verbose=False)
+Test_genC=NEXTDataGenerator(InputDirectory,n_threads=n_threads,skip=NSamples, bins=bins,max=MaxEvents, verbose=False)
     
 Train_gen=Train_genC.Generator()
 Test_gen=Test_genC.Generator()
@@ -76,7 +76,7 @@ if BuildModel and not MyModel.Model:
 else:
     FailedLoad=False
 
-Shape=(None,200,200,200)
+Shape=(None,)+bins
     
 # Or Build the model from scratch
 if BuildModel and not MyModel.Model :

@@ -5,22 +5,31 @@ import sys,argparse
 from numpy import arange
 import os
 
-InputDirectory="/data/NEXT/tracks/"
+from multiprocessing import cpu_count
+from DLTools.Utils import gpu_count
+
+max_threads=6
+n_threads=int(min(round(2*cpu_count()/gpu_count()),max_threads))
+print "Found",cpu_count(),"CPUs and",gpu_count(),"GPUs. Using",n_threads,"threads. max_threads =",max_threads
+
+InputDirectory="/data/NEXT/tracksVL/"
 
 # Generation Model
 Config={
-    "MaxEvents":int(3.e6),
-    "NTestSamples":100000,
+    "MaxEvents":int(0.5e6),
+    "NTestSamples":50000,
     "NClasses":2,
 
     "Epochs":1000,
-    "BatchSize":1024,
+    "BatchSize":32,
+
+    "bins":(100,100,100),
 
     # Configures the parallel data generator that read the input.
     # These have been optimized by hand. Your system may have
     # more optimal configuration.
-    "n_threads":10,  # Number of workers
-    "multiplier":2, # Read N batches worth of data in each worker
+    "n_threads": n_threads, #n_threads,  # Number of workers
+    "multiplier":1, # Read N batches worth of data in each worker
 
     # How weights are initialized
     "WeightInitialization":"'normal'",
