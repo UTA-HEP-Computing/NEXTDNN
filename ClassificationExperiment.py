@@ -14,8 +14,8 @@ if "Config" in dir():
 # Use "--Test" to run on less events and epochs.
 OutputBase="TrainedModels"
 if TestMode:
-    MaxEvents=int(20e3)
-    NTestSamples=int(20e2)
+    MaxEvents=int(10e3)
+    NTestSamples=int(10e2)
     Epochs=10
     OutputBase+=".Test"
     print "Test Mode: Set MaxEvents to",MaxEvents,"and Epochs to", Epochs
@@ -194,10 +194,14 @@ else:
 # Analysis
 if Analyze:
     print "Running Analysis."
-    Test_genC=NEXTDataGenerator(InputDirectory,n_threads=n_threads,skip=NSamples, max=MaxEvents, verbose=False)
+    # Data is too big to store in memory... will load a small fraction.
+    # Should write Analysis that uses batched data
+    Test_genC=NEXTDataGenerator(InputDirectory,n_threads=n_threads,skip=NSamples,
+                                bins=bins,
+                                max=BatchSize*4, verbose=False)
 
     Test_genC.PreloadData()
-    Test_XL, Test_Y = tuple(Test_genC.D)
+    Test_X, Test_Y = tuple(Test_genC.D)
 
     from DLAnalysis.Classification import MultiClassificationAnalysis
     result,NewMetaData=MultiClassificationAnalysis(MyModel,Test_X,Test_Y,BatchSize,PDFFileName="ROC",

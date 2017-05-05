@@ -23,7 +23,7 @@ Config={
     "Epochs":1000,
     "BatchSize":32,
 
-    "bins":(100,100,100),
+    "bins":(50,50,50),
 
     # Configures the parallel data generator that read the input.
     # These have been optimized by hand. Your system may have
